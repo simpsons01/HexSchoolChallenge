@@ -125,7 +125,7 @@
             },
             methods: {
                 getData() {
-                    fetchJsonp('http://opendata.epa.gov.tw/webapi/Data/REWIQA/?$orderby=SiteName&$skip=0&$top=1000&format=json')
+                    fetchJsonp('https://opendata.epa.gov.tw/webapi/Data/REWIQA/?$orderby=SiteName&$skip=0&$top=1000&format=json')
                         .then((response) => {
                             return response.json()
                         }).then((res) => {
