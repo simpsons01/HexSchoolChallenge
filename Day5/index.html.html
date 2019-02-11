@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="./css/Day5.css">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <div id="app">
+        <div class="main-content">
+            <div class="up-section">
+                <div class="up-left">
+                    <div class="row no-gutters">
+                        <div class="col-4">
+                            <h1>空氣品質指標(AQI)</h1>
+                            <select v-model="selected" name="" id="" @change="filterData">
+                                <option disabled="disabled">請選擇</option>
+                                <option v-for="item in city" :value="item">{{item}}</option>
+                            </select>
+                        </div>
+                        <div class="col-8 d-flex" style="border:3px solid black;border-right: 0px">
+                            <div class="status text-center">
+                                <div style="background:#95F084;">0-50</div>
+                                <div>良好</div>
+                            </div>
+                            <div class="status  text-center">
+                                <div style="background:#FFE695;">51-100</div>
+                                <div>普通</div>
+                            </div>
+                            <div class="status  text-center">
+                                <div style="background:#FFAF6A;">101-150</div>
+                                <div style="padding:0px 10px">對敏感族群不健康</div>
+                            </div>
+                            <div class="status  text-center">
+                                <div style="background:#FF5757;">151-200</div>
+                                <div style="padding:0px 10px">對所有族群不健康</div>
+                            </div>
+                            <div class="status  text-center">
+                                <div style="background:#9777FF;">201-300</div>
+                                <div>非常不健康</div>
+                            </div>
+                            <div class="status text-center">
+                                <div style="background:#AD1774;">301-400</div>
+                                <div>危害</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="split-line d-flex">
+                <p>{{detailInfo.County}}</p>
+                <div style="width: 71%; margin: 0px 2%">
+                    <hr style="border-top: 1px dotted black;margin-top:35px">
+                </div>
+                <p style="margin-top:20px;">{{detailInfo.PublishTime}}更新</p>
+            </div>
+            <div class="down-section">
+                <div class="row  no-gutters">
+                    <div v-if="detailInfo" class="col-3 down-left">
+                        <div class="up d-flex">
+                            <div class="text-center">{{detailInfo.SiteName}}</div>
+                            <div class="text-center" :style="aqiBg(detailInfo.AQI)" style="width:50%">{{detailInfo.AQI}}
+                            </div>
+                        </div>
+                        <div class="down">
+                            <div class="d-flex justify-content-between">
+                                <p>臭氧 O3 (ppb)</p>
+                                <p>{{detailInfo.O3}}</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p>懸浮微粒 PM10 (μg/m³)</p>
+                                <p>{{detailInfo.PM10}}</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p>細懸浮微粒 PM2.5 (μg/m³)</p>
+                                <p>{{detailInfo['PM2.5']}}</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p>一氧化碳 CO (ppm)</p>
+                                <p>{{detailInfo.CO}}</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p>二氧化硫 CO2 (ppm)</p>
+                                <p>{{detailInfo.SO2}}</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p>二氧化氮 NO2 (ppb)</p>
+                                <p>{{detailInfo.NO2}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-7 offset-1  down-right">
+                        <div class="row no-gutters">
+                            <div class="card-section col-5 mb-3  d-flex" :class="{'offset-2': index%2 !==0}"
+                                v-for="(item,index) in filterAry" v-if="item.AQI">
+                                <div class="text-center"><a href="#"
+                                        @click.prevent="getDetailInfo(item.SiteName)">{{item.SiteName}}</a>
+                                </div>
+                                <div class="aqi text-center" :style="aqiBg(item.AQI)">{{item.AQI}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.22/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch-jsonp/1.1.3/fetch-jsonp.js"></script>
+    <script>
+        const vm = new Vue({
+            el: '#app',
+            data: {
+                airData: [],
+                selected: "",
+                filterAry: [],
+                detailInfo: ""
+            },
+            methods: {
+                getData() {
+                    fetchJsonp('http://opendata.epa.gov.tw/webapi/Data/REWIQA/?$orderby=SiteName&$skip=0&$top=1000&format=json')
+                        .then((response) => {
+                            return response.json()
+                        }).then((res) => {
+                            this.airData = res
+                            this.selected = "新北市"
+                            this.filterData()
+                        })
+                },
+                filterData() {
+                    this.filterAry = this.airData.filter(item => item.County === this.selected)
+                    this.detailInfo = this.filterAry[0]
+                },
+                getDetailInfo(item) {
+                    this.detailInfo = this.filterAry.find(city => city.SiteName === item)
+                },
+                aqiBg(AQI) {
+                    if (AQI > 0 && AQI < 50) {
+                        return 'background-color:#95F084'
+                    } else if (AQI > 50 && AQI < 100) {
+                        return 'background-color:#FFE695'
+                    } else if (AQI > 100 && AQI < 150) {
+                        return 'background-color:#FFAF6A'
+                    } else if (AQI > 150 && AQI < 200) {
+                        return 'background-color:#FF5757'
+                    } else if (AQI > 200 && AQI < 300) {
+                        return 'background-color:#9777FF'
+                    } else if (AQI > 300 && AQI < 400) {
+                        return 'background-color:#AD1774'
+                    }
+                }
+            },
+            computed: {
+                city() {
+                    return this.airData.map(item => item.County).filter(function (value, index, array) {
+                        return array.indexOf(value) == index;
+                    });
+                }
+            },
+            mounted() {
+                this.getData()
+            }
+        })
+    </script>
+</body>
+
+</html>
