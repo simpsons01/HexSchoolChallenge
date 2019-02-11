@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ"
+        crossorigin="anonymous">
+    <style>
+        .calc-wrap {
+            width: 350px;
+            height: 525px;
+            background: #062145;
+            border-radius: 15px;
+            margin: 0 auto;
+            margin-top: 100px;
+        }
+
+        .up-section {
+            height: 18px;
+        }
+
+        .result-section {
+            width: 350px;
+            height: 109px;
+            border-radius: 15px;
+            background: #041936;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .up-section {
+            color: #00C4FF;
+            text-align: right;
+        }
+
+        .down-section {
+            color: white;
+            text-align: right;
+        }
+
+        .number-section {
+            width: 350px;
+            height: 332px;
+            padding: 10px;
+            box-sizing: border-box;
+            display: flex;
+            flex-wrap: wrap
+        }
+
+        .inner-button {
+            flex: 0 0 25%;
+            padding: 10px 29px;
+            box-sizing: border-box;
+        }
+
+        .inner-button a {
+            color: white;
+            font-size: 24px;
+            text-decoration: none;
+        }
+
+        .inner-button a:hover {
+            color: #6C00FF;
+        }
+
+        .other-function-section {
+            width: 350px;
+            height: 84px;
+            padding: 10px 5px;
+            box-sizing: border-box;
+            border-radius: 15px;
+            display: flex;
+            flex: wrap;
+        }
+
+        .other-button {
+            flex: 0 0 25%;
+            padding: 10px 29px;
+            box-sizing: border-box;
+        }
+
+        .other-button a {
+            color: #00C4FF;
+            text-decoration: none;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .other-button a:hover {
+            color: #6C00FF;
+        }
+
+        .other-button:last-child {
+            flex: 0 0 25%;
+            padding-left: 28%;
+            padding-top: 3.5%;
+            background: linear-gradient(50deg, #00C4FF, #6C00FF);
+            ;
+            box-sizing: border-box;
+            border-radius: 15px
+        }
+
+        .disabled {
+            color: darkgray !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app" class="calc-wrap">
+        <div class="result-section">
+            <div class="up-section">{{currentNum.join("")}}</div>
+            <template>
+                <div v-if="doCalc" :style="resultSize" class="down-section">{{result.join("")}}</div>
+                <div v-else :style="dotNumSize" class="down-section">{{dotNum}}</div>
+            </template>
+        </div>
+        <div class="number-section">
+            <div class="inner-button"><a @click.prevent="pushNum(7)" href="@">7</a></div>
+            <div class="inner-button"><a @click.prevent="pushNum(8)" href="@">8</a></div>
+            <div class="inner-button"><a @click.prevent="pushNum(9)" href="@">9</a></div>
+            <div class="inner-button"><a @click.prevent="pushNum(10)" href="@"><i class="fas fa-divide"></i></a></div>
+            <div class="inner-button"><a @click.prevent="pushNum(4)" href="@">4</a></div>
+            <div class="inner-button"><a @click.prevent="pushNum(5)" href="@">5</a></div>
+            <div class="inner-button"><a @click.prevent="pushNum(6)" href="@">6</a></div>
+            <div class="inner-button"><a @click.prevent="pushNum(20)" href="@"><i class="fas fa-times"></i></a></div>
+            <div class="inner-button"><a @click.prevent="pushNum(1)" href="@">1</a></div>
+            <div class="inner-button"><a @click.prevent="pushNum(2)" href="@">2</a></div>
+            <div class="inner-button"><a @click.prevent="pushNum(3)" href="@">3</a></div>
+            <div class="inner-button"><a @click.prevent="pushNum(30)" href="@"><i class="fas fa-plus"></i></a></div>
+            <div class="inner-button"><a @click.prevent="pushNum(0)" href="@">0</a></div>
+            <div class="inner-button"><a @click.prevent="pushNum(00)" href="@">00</a></div>
+            <div class="inner-button"><a @click.prevent="pushNum('.')" href="@">.</a></div>
+            <div class="inner-button"><a @click.prevent="pushNum(40)" href="@"><i class="fas fa-minus"></i></a></div>
+        </div>
+        <div class="other-function-section">
+            <div class="other-button"><a @click.prevent="startOver" href="@">AC</a></div>
+            <div class="other-button"><a @click.prevent="cutNum" :class="{'disabled':doCalc === false}" href="@">DEl</a></div>
+            <div class="other-button"><a @click.prevent="calc" href="@"><i class="fas fa-equals"></i></a></div>
+        </div>
+    </div>
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.22/vue.js"></script>
+    <script>
+
+        //10是除法 20是乘法  30是加法  40是減法  
+        const vm = new Vue({
+            el: '#app',
+            data: {
+                result: [],
+                currentNum: [],
+                finishNum: 0,
+                doCalc: true,
+                userNum: "",
+                dotNum: '12'
+            },
+            methods: {
+                pushNum(num) {
+                    if (this.doCalc) {
+                        if (num === 10) {
+                            this.currentNum.push(Number(this.result.join("")))
+                            this.currentNum.push('/')
+                            this.result = []
+                            return
+                        } else if (num === 20) {
+                            this.currentNum.push(Number(this.result.join("")))
+                            this.currentNum.push('*')
+                            this.result = []
+                            return
+                        } else if (num === 30) {
+                            this.currentNum.push(Number(this.result.join("")))
+                            this.currentNum.push('+')
+                            this.result = []
+                            return
+                        } else if (num === 40) {
+                            this.currentNum.push(Number(this.result.join("")))
+                            this.currentNum.push('-')
+                            this.result = []
+                            return
+                        }
+                    } else {
+                        if (typeof (num) === 'number' && num >= 0 && num <= 9) {
+                            this.currentNum = []
+                            this.doCalc = true
+                        } else {
+                            this.currentNum = []
+                            this.currentNum.push(this.finishNum)
+                            if (num === 10) {
+                                this.currentNum.push('/')
+                                this.result = []
+                                this.doCalc = true
+                                return
+                            } else if (num === 20) {
+                                this.currentNum.push('*')
+                                this.result = []
+                                this.doCalc = true
+                                return
+                            } else if (num === 30) {
+                                this.currentNum.push('+')
+                                this.result = []
+                                this.doCalc = true
+                                return
+                            } else if (num === 40) {
+                                this.currentNum.push('-')
+                                this.result = []
+                                this.doCalc = true
+                                return
+                            }
+                        }
+                    }
+                    this.result.push(num)
+                },
+                calc() {
+                    if (this.result.length === 0) return
+                    this.doCalc = false
+                    this.currentNum.push(Number(this.result.join("")))
+                    this.result = []
+                    this.finishNum = eval(this.currentNum.join(''))
+                },
+                startOver() {
+                    this.result = []
+                    this.currentNum = []
+                    this.finishNum = 0
+                    this.doCalc = true
+                    this.dotNum = 0
+                },
+                cutNum() {
+                    if (this.result.length === 0) return
+                    this.result.pop()
+                }
+            },
+            computed: {
+                dotNumSize() {
+                    if (this.dotNum.toString().split('').length < 12) {
+                        return {
+                            fontSize: "56px"
+                        }
+                    } else if (this.dotNum.toString().split('').length >= 12 && this.dotNum.toString().split('').length < 18) {
+                        return {
+                            fontSize: "36px"
+                        }
+                    } else if (this.dotNum.toString().split('').length >= 18 && this.dotNum.toString().split('').length < 36) {
+                        return {
+                            fontSize: "18px"
+                        }
+                    } else if (this.dotNum.toString().split('').length >= 36 && this.dotNum.toString().split('').length < 100) {
+                        return {
+                            fontSize: "12px"
+                        }
+                    }
+                },
+                resultSize() {
+                    if (this.result.length < 12) {
+                        return {
+                            fontSize: "56px"
+                        }
+                    } else if (this.result.length >= 12 && this.result.length < 18) {
+                        return {
+                            fontSize: "36px"
+                        }
+                    } else if (this.result.length >= 18 && this.result.length < 36) {
+                        return {
+                            fontSize: "24px"
+                        }
+                    } else if (this.result.length >= 36 && this.result.length < 100) {
+                        return {
+                            fontSize: "12px"
+                        }
+                    }
+                }
+            },
+            watch: {
+                finishNum(value) {
+                    if (value < 1000) {
+                        this.dotNum = value
+                    } else {
+                        var numStr = '' + value
+                        this.dotNum = numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
