@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>60秒算術遊戲</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
+    <style>
+        body {
+            padding: 0px;
+            margin: 0;
+            background-color: #FF9D00;
+            font-family: 'Roboto Condensed', sans-serif;
+        }
+
+        p {
+            margin: 0;
+        }
+
+        /*start-section*/
+
+        #start {
+            transform: translate(0, 30%)
+        }
+
+        .title-up {
+            display: flex;
+            flex: wrap;
+        }
+
+        .title-right {
+            font-size: 96px;
+            font-weight: 900;
+        }
+
+        .title-right span {
+            font-size: 36px;
+            color: white;
+            position: relative;
+            top: -32px;
+        }
+
+        .title-right span:after {
+            content: '';
+            width: 100%;
+            border-bottom: solid 3px #fff;
+            position: absolute;
+            left: 0;
+            top: 130%;
+            z-index: 1;
+        }
+
+        .title-right span:before {
+            content: '';
+            width: 100%;
+            border-bottom: solid 3px #fff;
+            position: absolute;
+            left: 0;
+            top: 100%;
+            z-index: 1;
+        }
+
+        .title-left {
+            font-size: 240px;
+            color: white;
+            text-shadow: 10px 1px black;
+            text-align: right
+        }
+
+        .title-left p {
+            top: -26px;
+            position: relative;
+        }
+
+        .title-down {
+            text-align: center;
+            color: white;
+            font-size: 24px
+        }
+
+        .title-down a {
+            text-decoration: none;
+            color: #FF9D00;
+            padding: 3px 70px;
+            background: black;
+            font-size: 36px;
+        }
+
+        .title-down p {
+            margin-top: 20px;
+        }
+
+        /* begin-section */
+
+        #began {
+            transform: translate(0, 75%)
+        }
+
+        .began-left p:first-child {
+            color: white;
+            background-color: #FF9D00;
+            border: 5px solid white;
+            font-size: 30px;
+        }
+
+        .began-left p:nth-child(2) {
+            color: #FF9D00;
+            background-color: white;
+            padding: 5px 10px;
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .began-left span {
+            color: black;
+            font-size: 44px;
+            font-weight: bold;
+            position: relative;
+            top: 4px;
+        }
+
+        .began-right {
+            font-size: 96px;
+            color: white;
+        }
+
+        .outputQuestion {
+            font-size: 112px;
+        }
+
+        .userInput {
+            width: 255px;
+            height: 131px;
+            font-size: 112px;
+        }
+
+        /* over */
+
+        #over {
+            transform: translate(0, 50%)
+        }
+
+        #over p:first-child {
+            color: white;
+            background-color: #FF9D00;
+            border: 5px solid white;
+            font-size: 30px;
+            width: 40%;
+            margin: 0 auto;
+        }
+
+        .final-score {
+            font-size: 56px;
+            font-weight: bold;
+        }
+
+        .final-score:after {
+            content: '';
+            width: 3%;
+            border-bottom: solid 8px #fff;
+            position: absolute;
+            right: 34%;
+            top: 22%;
+        }
+
+        .final-score:before {
+            content: '';
+            width: 3%;
+            border-bottom: solid 8px #fff;
+            position: absolute;
+            left: 34%;
+            top: 22%;
+        }
+
+        .try-agiain {
+            text-decoration: none;
+            color: #FF9D00;
+            padding: 3px 70px;
+            background: black;
+            font-size: 36px;
+        }
+
+        /* vue-animation */
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity .5s;
+        }
+
+        .fade-enter,
+        .fade-leave-to {
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app">
+        <transition name="fade" mode="out-in">
+            <div id="start" v-if="isShow === 'start'" key="start">
+                <div class="container">
+                    <div class="row">
+                        <div class="offset-2 col-3 title-left">
+                            <p>60</p>
+                        </div>
+                        <div class=" col-7 title-right">
+                            <p style="position:relative;top:30px">SECONDS
+                                <span>+−×÷
+                                </span>
+                            </p style="position:relative;bottom:30px">
+                            <p>CHALLENGE</p>
+                        </div>
+                    </div>
+                    <div class="title-down">
+                        <a class="start-buttom" href="#" @click.prevent="startGame">START</a>
+                        <p>try to answer more as you can</p>
+                    </div>
+                </div>
+            </div>
+            <div id="began" v-if="isShow === 'began'" key="began">
+                <div class="container">
+                    <div class="row">
+                        <div class="offset-2 col-5 began-left">
+                            <p class="text-center">60 SECONDS CHALLENGE</p>
+                            <p class="d-inline mr-1">SCORE</p>
+                            <span>00{{score}}</span>
+                        </div>
+                        <div class="offset-1 col-4 began-right">
+                            <p>00:{{sec}}</p>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center began-down">
+                        <div>
+                            <p class="outputQuestion" v-html="outputQuestion"></p>
+                        </div>
+                        <div class="mt-4 ml-5">
+                            <input class="userInput" v-model="userInput" type="text" @keyup.enter="reWriteNum">
+                            <p class="text-white">press enter to answer</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="over" v-if="isShow === 'over'" key="over">
+                <div class="container">
+                    <p class="text-center text-white">60 SECONDS CHALLENGE</p>
+                    <h1 class="text-center final-score">YOUR FINAL SCORE</h1>
+                    <div style="font-size:112px;font-weight:bold" class="text-center">{{score}}</div>
+                    <div class="text-center mt-5">
+                        <a class="try-agiain" href="#" @click.prevent="tryAgain">TRY AGAIN</a>
+                    </div>
+                </div>
+            </div>
+        </transition>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.22/vue.js"></script>
+    <script>
+
+        let timer1 = null
+        let timer2 = null
+
+        const vm = new Vue({
+            el: '#app',
+            data: {
+                min: 1,
+                score: 0,
+                sec: 60,
+                ramdomNum1: 0,
+                ramdomNum2: 0,
+                max: 9,
+                min: 1,
+                operatorIndex: 0,
+                tempOperator: ['*', '+', '-', '/'],
+                operator: '+',
+                userInput: "",
+                addScore: 1,
+                isShow: 'start',
+            },
+            methods: {
+                countDown() {
+                    timer1 = setInterval(() => {
+                        if (this.sec === 0) return
+                        this.sec--
+                    }, 1000)
+                },
+                startGame() {
+                    this.isShow = "began"
+                    this.reWriteNum()
+                    timer2 = setTimeout(() => {
+                        this.countDown()
+                    }, 800)
+                },
+                reWriteNum() {
+                    if (parseInt(this.userInput) == this.answer) {
+                        this.score = this.score + this.addScore
+                    } else {
+                        this.score--
+                        if (this.score === -1) this.score = 0
+                    }
+                    this.operatorIndex = Math.floor(Math.random() * Math.floor(4))
+                    this.ramdomNum1 = Math.ceil(Math.random() * (this.max - this.min) + this.min);
+                    this.ramdomNum2 = Math.ceil(Math.random() * (this.max - this.min) + this.min);;
+                    this.operator = this.tempOperator[this.operatorIndex]
+                    this.userInput = ""
+                },
+                tryAgain() {
+                    this.isShow = 'start'
+                    this.sec = 60
+                    this.min = 1
+                    this.max = 9
+                    this.score = 0
+                    this.ramdomNum1 = 0
+                    this.ramdomNum2 = 0
+                    this.addScore = 1
+                    clearInterval(timer1)
+                    clearTimeout(timer2)
+                }
+            },
+            computed: {
+                answer() {
+                    return Math.floor(eval(`${this.ramdomNum1}${this.operator}${this.ramdomNum2}`))
+                },
+                outputQuestion() {
+                    let temp = ""
+                    if (this.operator === "*") {
+                        temp = "×"
+                    } else if (this.operator === "/") {
+                        temp = "÷"
+                    } else {
+                        temp = this.operator
+                    }
+                    return `${this.ramdomNum1} <span style="color:white">
+                            ${temp}</span> ${this.ramdomNum2} 
+                            <span style="color:white">=</span>`
+                }
+            },
+            watch: {
+                sec() {
+                    if (this.sec > 20 && this.sec < 40) {
+                        this.max = 99
+                        this.min = 11
+                    } else if (this.sec > 0 && this.sec < 20) {
+                        this.max = 999
+                        this.min = 111
+                        this.addScore = 5
+                    } else if (this.sec === 0) {
+                        this.isShow = 'over'
+                    }
+                }
+            },
+            beforeDestory() {
+                clearInterval(timer1)
+                clearTimeout(timer2)
+            }
+        })
+    </script>
+</body>
+
+</html>
