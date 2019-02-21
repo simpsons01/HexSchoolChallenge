@@ -302,9 +302,12 @@
                         if (this.score === -1) this.score = 0
                     }
                     this.operatorIndex = Math.floor(Math.random() * Math.floor(4))
-                    this.ramdomNum1 = Math.ceil(Math.random() * (this.max - this.min) + this.min);
-                    this.ramdomNum2 = Math.ceil(Math.random() * (this.max - this.min) + this.min);;
                     this.operator = this.tempOperator[this.operatorIndex]
+                    this.ramdomNum1 = Math.ceil(Math.random() * (this.max - this.min) + this.min)
+                    this.ramdomNum2 = Math.ceil(Math.random() * (this.max - this.min) + this.min)
+                    if (this.operator === '/') {
+                        [this.ramdomNum1, this.ramdomNum2] = this.setToInteger(this.ramdomNum1, this.ramdomNum2)
+                    }
                     this.userInput = ""
                 },
                 tryAgain() {
@@ -318,6 +321,18 @@
                     this.addScore = 1
                     clearInterval(timer1)
                     clearTimeout(timer2)
+                },
+                setToInteger(firstNum, secondNum) {
+                    let tempNum = []
+                    if (secondNum > firstNum) {
+                        [firstNum, secondNum] = [secondNum, firstNum]
+                    }
+                    for (let i = 1; i <= firstNum; i++) {
+                        if (firstNum % i === 0) tempNum.push(i)
+                    }
+                    let tempNumIndex = Math.floor(Math.random() * Math.floor(tempNum.length))
+                    secondNum = tempNum[tempNumIndex]
+                    return [firstNum, secondNum]
                 }
             },
             computed: {
