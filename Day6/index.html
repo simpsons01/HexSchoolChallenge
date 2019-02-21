@@ -305,9 +305,6 @@
                     this.operator = this.tempOperator[this.operatorIndex]
                     this.ramdomNum1 = Math.ceil(Math.random() * (this.max - this.min) + this.min)
                     this.ramdomNum2 = Math.ceil(Math.random() * (this.max - this.min) + this.min)
-                    if (this.ramdomNum2 > this.ramdomNum1) {
-                        [this.ramdomNum1, this.ramdomNum2] = [this.ramdomNum2, this.ramdomNum1]
-                    }
                     if (this.operator === '/') {
                         [this.ramdomNum1, this.ramdomNum2] = this.setToInteger(this.ramdomNum1, this.ramdomNum2)
                     }
