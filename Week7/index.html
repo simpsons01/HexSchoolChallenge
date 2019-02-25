@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Canvas</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+        integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <style>
+        body {
+            padding: 0px;
+            margin: 0px;
+        }
+
+        .edit {
+            width: 100%;
+            background: white;
+            padding: 20px 0px;
+            position: absolute;
+            overflow: hidden;
+        }
+
+        .toggle-btn {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            border-radius: 50%;
+        }
+
+        .toggle-btn-down {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            border-radius: 50%;
+        }
+
+        .go-top {
+            top: 0px;
+        }
+
+        .style-pen {
+            width: 950px;
+            background: white;
+            padding: 20px 0px;
+            position: absolute;
+            bottom: 20px;
+            left: 28%;
+            border-radius: 40px;
+        }
+
+        .style-color {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 0px
+        }
+
+        .style-color>i {
+            position: absolute;
+            top: 13px;
+            left: 13px;
+        }
+
+        .upload_cover {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            cursor: pointer;
+            background: white;
+        }
+
+        #upload_input {
+            display: none;
+        }
+
+
+
+        .toggle-enter-active,
+        .toggle-leave-active {
+            transition: all 0.1s;
+            max-height: 84px;
+        }
+
+        .toggle-enter,
+        .toggle-leave-to {
+            max-height: 0;
+        }
+
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: all 0.3s;
+        }
+
+        .fade-enter,
+        .fade-leave-to {
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app">
+        <div class="wrap">
+            <transition name="toggle">
+                <div class="edit" v-if="isShow">
+                    <div class="container">
+                        <div class="row">
+                            <a class="col-3 btn btn-light font-weight-bold" style="font-size:20px" :href="href"
+                                download>
+                                <i class="fas fa-save  fa-1x mr-2"></i> SAVE
+                            </a>
+                            <button class="col-3 btn btn-light font-weight-bold" style="font-size:20px" @click="reset">
+                                <i class="far fa-square  fa-1x mr-2 "></i> CLEAR ALL
+                            </button>
+                            <button class="col-3 btn btn-light font-weight-bold" style="font-size:20px"
+                                @click="nextToStep">
+                                <i class="fas fa-redo-alt  fa-1x mr-2"></i>REDO
+                            </button>
+                            <button class="col-3 btn btn-light font-weight-bold" style="font-size:20px"
+                                @click="backToStep">
+                                <i class="fas fa-undo-alt  fa-1x mr-2"></i>UNDO
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </transition>
+            <button class="btn btn-light toggle-btn" :class="{'go-top': !isShow}" @click="isShow = !isShow">
+                <i v-if="isShow" class="fas fa-chevron-up fa-1x"></i>
+                <i v-else class="fas fa-chevron-down"></i>
+            </button>
+            <transition name="fade">
+                <div class="style-pen" style="font-size:20px" v-if="downIsShow">
+                    <div class="container">
+                        <div class="row">
+                            <div class="d-flex ml-4 col-2  ml-5">
+                                <a href="@" @click.prevent="lineColor = '#E8E8E8'"><i class="fas fa-eraser fa-2x mr-3"
+                                        style="color:black"></i></a>
+                                <a href="@" @click.prevent="lineColor = 'black'"><i class="fas fa-pen fa-2x mr-2"
+                                        style="color:black"></i></a>
+                                <label class="upload_cover">
+                                    <input id="uploadPic" @change="uploadPic" type="file" style="display:none">
+                                    <i class="fas fa-upload fa-2x"></i>
+                                </label>
+                            </div>
+                            <div class="ml-4 col-3 font-weight-bold" style="position:relative;top:12px">
+                                SIZE:
+                                <a v-if="styleWidth" class="mr-2 ml-2" @click="styleWidth = !styleWidth"
+                                    style="background:#E8E8E8; padding:10px 25px;border-radius:30px">{{lineWidth}}
+                                </a>
+                                <input v-model="lineWidth" @keyup.enter="styleWidth = !styleWidth" v-else
+                                    class="mr-2 ml-2" autofocus style="background:#E8E8E8;width: 70px;
+                                border: 0px;border-radius:30px;padding:8px 0px;">
+                                </input>
+                                px
+                            </div>
+                            <div class="col-6 font-weight-bold">
+                                <span style="position:relative;top:-10px" class="mr-4">COLOR:</span>
+                                <button @click="lineColor= 'white'"
+                                    style="background:white;border:1px solid black;position: relative;"
+                                    class="style-color mr-2"><i v-show="lineColor == 'white'"
+                                        class="fas fa-check"></i></button>
+                                <button @click="lineColor= 'black'" style="background:black;position: relative"
+                                    class="style-color mr-2"><i v-show="lineColor == 'black'" class="fas fa-check"
+                                        style="color:white"></i></button>
+                                <button @click="lineColor= '#9BFFCD'" style="background:#9BFFCD;position: relative"
+                                    class="style-color mr-2"><i v-show="lineColor == '#9BFFCD'"
+                                        class="fas fa-check"></i></button>
+                                <button @click="lineColor= '#00CC99'" style="background:#00CC99;position: relative"
+                                    class="style-color mr-2"><i v-show="lineColor == '#00CC99'"
+                                        class="fas fa-check"></i></button>
+                                <button @click="lineColor = '#01936F'" style="background:#01936F;position: relative"
+                                    class="style-color"><i v-show="lineColor == '#01936F'"
+                                        class="fas fa-check"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </transition>
+            <button class="btn btn-light toggle-btn-down" @click="downIsShow = !downIsShow">
+                <i v-if="downIsShow" class="fas fa-chevron-down fa-1x"></i>
+                <i v-else class="fas fa-broom"></i>
+            </button>
+        </div>
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.22/vue.js"></script>
+    <script>
+        const vm = new Vue({
+            el: '#app',
+            data: {
+                canvas: null,
+                ctx: null,
+                isdraw: false,
+                step: 0,
+                firstX: 0,
+                firstY: 0,
+                userData: [],
+                initView: '',
+                lineColor: 'black',
+                lineWidth: 12,
+                href: '@',
+                isShow: true,
+                downIsShow: true,
+                styleWidth: true
+            },
+            methods: {
+                reset() {
+                    let canvasPic = new Image()
+                    canvasPic.src = this.initView
+                    canvasPic.onload = () => {
+                        this.ctx.drawImage(canvasPic, 0, 0)
+                    }
+                    this.userData = []
+                    this.step = 0
+                    this.firstX = 0
+                    this.firstY = 0
+                },
+                draw(preX, preY, x, y) {
+                    this.ctx.beginPath()
+                    this.ctx.moveTo(preX, preY)
+                    this.ctx.lineTo(x, y)
+                    this.ctx.closePath()
+                    this.ctx.strokeStyle = this.lineColor;
+                    this.ctx.lineJoin = 'round'
+                    this.ctx.lineWidth = this.lineWidth
+                    this.ctx.stroke()
+                },
+                calcPosition(x, y) {
+                    var rect = canvas.getBoundingClientRect();
+                    return {
+                        x: (x - rect.left) / (rect.right - rect.left) * this.canvas.width,
+                        y: (y - rect.top) / (rect.bottom - rect.top) * this.canvas.height
+                    };
+                },
+                mouseHandler(e) {
+                    this.isdraw = true
+                    let tempObj = this.calcPosition(e.clientX, e.clientY)
+                    this.firstX = tempObj.x
+                    this.firstY = tempObj.y
+                    let tempX = tempObj.x
+                    let tempY = tempObj.y
+                    this.canvas.onmousemove = (e) => {
+
+                        if (!this.isdraw) return
+                        this.draw(
+                            tempX,
+                            tempY,
+                            this.calcPosition(e.clientX, e.clientY).x,
+                            this.calcPosition(e.clientX, e.clientY).y
+                        )
+                        tempX = this.calcPosition(e.clientX, e.clientY).x
+                        tempY = this.calcPosition(e.clientX, e.clientY).y
+                    }
+                    this.canvas.onmouseup = (e) => {
+                        this.step++
+                        this.userData.push(this.canvas.toDataURL())
+                        this.href = this.canvas.toDataURL('image/jpeg')
+                        this.isdraw = false
+                    }
+                },
+                nextToStep() {
+                    if (this.step > this.userData.length - 2) return
+                    this.step++
+                    let canvasPic = new Image()
+                    canvasPic.src = this.userData[this.step]
+                    canvasPic.onload = () => {
+                        this.ctx.drawImage(canvasPic, 0, 0)
+                    }
+                },
+                backToStep() {
+                    this.step--
+                    let canvasPic = new Image()
+                    if (this.step < 0) {
+                        canvasPic.src = this.initView
+                        canvasPic.onload = () => {
+                            this.ctx.drawImage(canvasPic, 0, 0)
+                        }
+                    } else {
+                        canvasPic.src = this.userData[this.step]
+                        canvasPic.onload = () => {
+                            this.ctx.drawImage(canvasPic, 0, 0)
+                        }
+                    }
+                },
+                uploadPic() {
+                    let reader = new FileReader()
+                    let selectedFile = document.getElementById('uploadPic').files[0];
+                    if (selectedFile.type === 'image/jpeg' || selectedFile.type === 'image/png') {
+                        reader.addEventListener("load", () => {
+                            let canvasPic = new Image()
+                            canvasPic.src = reader.result
+                            canvasPic.onload = () => {
+                                if (selectedFile.size < 1000000) {
+                                    this.ctx.drawImage(canvasPic,
+                                        (this.canvas.width / 2) - (canvasPic.width / 2),
+                                        (this.canvas.height / 2) - (canvasPic.height / 2))
+                                } else {
+                                    this.ctx.drawImage(canvasPic, 0, 0)
+                                }
+                            }
+                        }, false);
+                        if (selectedFile) {
+                            reader.readAsDataURL(selectedFile);
+                        }
+                    } else {
+                        alert('錯誤檔案類型')
+                        return
+                    }
+                }
+            },
+            mounted() {
+                this.canvas = document.getElementById('canvas')
+                this.ctx = this.canvas.getContext('2d')
+                this.canvas.width = document.body.clientWidth;
+                this.canvas.height = window.innerHeight;
+                this.ctx.fillStyle = '#E8E8E8';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+                this.initView = this.canvas.toDataURL()
+                this.canvas.addEventListener('mousedown', this.mouseHandler)
+            },
+            beforeDestroy() {
+                this.canvas.removeEventListener('mousedown', this.mouseHandler);
+            }
+        })
+
+    </script>
+</body>
+
+</html>
