@@ -261,7 +261,7 @@
                     this.canvas.onmouseup = (e) => {
                         this.step++
                         this.userData.push(this.canvas.toDataURL())
-                        this.href = this.canvas.toDataURL('image/png')
+                        this.href = this.canvas.toDataURL()
                         this.isdraw = false
                     }
                 },
