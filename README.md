@@ -15,5 +15,5 @@ Week6: https://simpsons01.github.io/HexSchoolChallenge/Week6/index.html
 
 Week7: https://simpsons01.github.io/HexSchoolChallenge/Week7/index.html
 
-Week8:https://simpsons01.github.io/HexSchoolChallenge/Week8/index.html
+Week8:https://simpsons01.github.io/HexSchoolChallenge/Week8/dist/index.html
 
