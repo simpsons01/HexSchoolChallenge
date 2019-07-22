@@ -1,5 +1,6 @@
-# HexSchoolChallenge
+地下城網站連結: https://www.udemy.com/js-underground/
 
+*******************************************************************************
 
 WEEK1/九九乘法表:      https://simpsons01.github.io/HexSchoolChallenge/Week1/index.html
 
