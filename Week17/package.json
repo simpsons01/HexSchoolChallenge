@@ -33,8 +33,14 @@
     ],
     "rules": {
       "no-console": "off",
-      "semi":["error", "never"],
-      "quotes": ["error", "single"],
+      "semi": [
+        "error",
+        "never"
+      ],
+      "quotes": [
+        "error",
+        "single"
+      ],
       "no-unused-vars": "off"
     },
     "parserOptions": {
