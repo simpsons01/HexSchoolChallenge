@@ -11,48 +11,24 @@
             draggable="true"
             :data-index="item.x + item.y * 3"
           ></div>
-          <div
-            v-for="(item, index) in dropList"
+          <GridPuzzle 
+             v-for="(item, index) in dropList"
             :key="index + 10"
             :data-index="item.index"
-            class="drop-list-item"
-            draggable="true"
-            :style="{
-              top: `${item.position.y}px`,
-              left: `${item.position.x}px`
-            }"
-          >
-            <img :src="item.src" />
-          </div>
+            :item="item"
+            @changeIndex="setAryIndex"
+          />
         </div>
       </transition>
-      <div
-        v-for="(item, index) in puzzleList"
-        :key="index"
-        class="puzzle-item"
-        draggable="true"
-        :style="{
-          top: `${item.position.y}px`,
-          left: `${item.position.x}px`,
-          display: `${item.display ? 'block' : 'none'}`
-        }"
-      >
-        <img :src="item.src" />
-      </div>
+      <Puzzle  
+         v-for="(item,index) in puzzleList" 
+         :key="index" 
+         :item="item"
+         @changeIndex="setAryIndex"
+      />
     </div>
-    <transition name="silde-fade">
-      <div class="intro" v-if="step === 3">
-        <h1>清院本清明上河圖</h1>
-        <h4>陳枚、孫祜、金昆、戴洪、程志道</h4>
-        <p>
-          宋張澤端（活動於西元十二世紀前期）「清明上河圖」是畫史中寫實風俗畫的一件傑作，
-          歷代臨仿者甚多，在故宮即藏有七種不同的本子，其中就屬清院本「清明上河圖」最為
-          有名。此卷為乾隆元年（一七三六）由宮廷畫院畫師陳枚、孫祜、金昆、戴洪、程志道等
-          五人合繪。
-          此卷設色鮮麗，用筆圓熟，界畫橋樑、屋宇及人物皆十分細膩嚴謹，是院畫中
-          之極精者。所畫事物甚多，雖失去了宋代古制，但也足以代表明清之際北京風物。
-        </p>
-      </div>
+    <transition name="fade">
+       <Intro :step="step"/>
     </transition>
     <a v-show="step === 1" @click.prevent="startGame" class="trigger"
       >重新排列</a
@@ -64,6 +40,9 @@
 import { images } from '../assets/loader'
 import { waitHandler, classHandler, dataHandler } from '../../utilities'
 import imgMap from '../../img_setting'
+import Puzzle from '../components/Puzzle'
+import Intro from '../components/Intro'
+import GridPuzzle from '../components/GridPuzzle'
 export default {
   data() {
     return {
@@ -71,11 +50,18 @@ export default {
       puzzleList: [],
       puzzleGrid: [],
       dropList: [],
-      dragTarget: null,
       aryIndex: 0
     }
   },
+  components:{
+    Puzzle,
+    Intro,
+    GridPuzzle
+  },
   methods: {
+    setAryIndex(index) {
+      this.aryIndex = index
+    },
     startGame() {
       let self = this
       this.puzzleList.forEach(item => {
@@ -117,18 +103,6 @@ export default {
       }
       return true
     },
-    bindDragEvent() {
-      const self = this
-      this.$nextTick(function() {
-        self.$('.drop-list-item').each(function(index, el) {
-          self.$(el).on({
-            dragstart: function(e) {
-              self.aryIndex = parseInt(e.currentTarget.dataset.index)
-            }
-          })
-        })
-      })
-    },
      bindDropEvent() {
       let self = this
       this.$('.puzzle-girds').on({
@@ -138,8 +112,7 @@ export default {
         async drop(e) {
           let targetIndex = parseInt(self.$(e.target)[0].dataset.index)
           let { x, y } = self.puzzleGrid[targetIndex]
-          x *= 180
-          y *= 180
+          x *= 180, y *= 180
           if (imgMap[`puzzle${self.aryIndex}`]) {
             (y = y + imgMap[`puzzle${self.aryIndex}`].top),
             (x = x + imgMap[`puzzle${self.aryIndex}`].left)
@@ -158,12 +131,13 @@ export default {
             self.dropList.push(dropItem)
           }
           self.$set(self.puzzleList[self.aryIndex], 'display', false)
-          self.bindDragEvent()
           self.checkFinish(dropItem, targetIndex)
           if (self.isFinish()) {
             await classHandler(self.$('.puzzle-girds'), 'correct')
             self.$('.puzzle-girds').css({ left: `${50}%` })
-            self.step = 3
+            self.$('.puzzle-girds').on('transitionend',function(){
+              self.step = 3
+            })
           }
         }
       })
@@ -187,15 +161,6 @@ export default {
         this.puzzleGrid.push({ x: k, y: i, order: k + i * 3 })
       }
     }
-    this.$nextTick(function() {
-      self.$('.puzzle-item').each(function(index, el) {
-        self.$(el).on({
-          dragstart: function(e) {
-            [self.dragTarget, self.aryIndex] = [el, index]
-          }
-        })
-      })
-    })
     this.bindDropEvent()
   }
 }
@@ -233,16 +198,6 @@ body {
   filter: blur(10px);
 }
 
-.intro {
-  width: 350px;
-  color: white;
-  left: 15%;
-  top: 50%;
-  transition: 0.3s all ease-in-out;
-  position: absolute;
-  transform: translateY(-50%);
-  line-height: 1.8;
-}
 
 .title {
   text-align: center;
@@ -300,13 +255,7 @@ body {
   box-sizing: border-box;
   position: relative;
 }
-.drop-list-item {
-  position: absolute !important;
-  width: 180px;
-  height: 180px;
-  z-index: 10;
-  border: none !important;
-}
+
 .correct {
   animation: correct-light 0.5s 1;
 }
@@ -316,6 +265,7 @@ body {
   }
   50% {
     box-shadow: 0px 0px 40px white;
+    z-index:99;
   }
   100% {
     box-shadow: 0px 0px 0px white;
@@ -330,6 +280,7 @@ body {
   }
   50% {
     box-shadow: 0px 0px 40px red;
+    z-index:99;
   }
   100% {
     box-shadow: 0px 0px 0px red;
@@ -350,6 +301,21 @@ body {
 
 .silde-fade-enter-active,
 .silde-fade-leave-active {
+  transition: 0.6s all ease-in-out;
+}
+
+.fade-enter-to,
+.fade-leave {
+  opacity: 1;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-active,
+.fade-leave-active {
   transition: 0.6s all ease-in-out;
 }
 </style>
